@@ -5,6 +5,10 @@ import { isAddress } from 'web3-utils'
 import { useNocustClient, useEraNumber } from './Nocust'
 import { useTokens } from './Tokens'
 
+import { createNocustManager } from '../services/nocustManager'
+import { nocust } from 'nocust-client'
+import Web3 from 'web3'
+
 const UPDATE_LIMIT = 'UPDATE_LIMIT'
 const UPDATE_FEE = 'UPDATE_FEE'
 const UPDATE_BLOCKS = 'UPDATE_BlOCKS'
@@ -78,52 +82,87 @@ export default function Provider ({ children }) {
   )
 }
 
-export function useWithdrawalFee (gasPrice) {
-  const nocust = useNocustClient()
+export function useWithdrawalFee (gasPrice, privateKey) {
+  //const nocust = useNocustClient()
   const [state, { updateFee }] = useWithdrawalContext()
   const { withdrawalFee } = state
 
   useEffect(() => {
-    if (nocust) {
-      nocust.getWithdrawalFee(gasPrice)
-        .then(withdrawalFee => {
-          updateFee(withdrawalFee)
-        })
-        .catch(() => {
-          updateFee(null)
-        })
-    }
-  }, [gasPrice])
+    const useWithdrawFee = async () => {
+
+      await nocust.init({
+        contractAddress: process.env.REACT_APP_HUB_CONTRACT_ADDRESS,
+        rpcUrl: process.env.REACT_APP_WEB3_PROVIDER,
+        operatorUrl: process.env.REACT_APP_HUB_API_URL
+      });
+    
+      await nocust.addPrivateKey(privateKey);
+      //console.log("Private key added");
+    
+      try {
+        const withdrawFee = nocust.getWithdrawalFee(gasPrice)
+        updateFee(withdrawFee)
+       } catch (err) {
+        console.error(err)
+        updateFee(null)
+       }
+    };
+    
+    useWithdrawFee();
+  
+  }, [gasPrice]);
 
   return withdrawalFee
 }
 
-export function useWithdrawalLimit (address, tokenAddress) {
-  const nocust = useNocustClient()
-  const eraNumber = useEraNumber()
+export function useWithdrawalLimit (address, tokenAddress, privateKey) {
+  //const nocust = useNocustClient()
+  //const eraNumber = useEraNumber()
   const [state, { updateLimit }] = useWithdrawalContext()
   const { withdrawalLimit } = safeAccess(state, [address, tokenAddress]) || {}
 
   useEffect(() => {
     if (isAddress(address) && isAddress(tokenAddress)) {
       console.log('checking withdrawal limit')
-      nocust.getWithdrawalLimit(address, tokenAddress)
-        .then(withdrawalLimit => {
-          updateLimit(address, tokenAddress, withdrawalLimit)
-        })
-        .catch(() => {
+      const checkWithdrawLimit = async () => {
+
+        await nocust.init({
+          contractAddress: process.env.REACT_APP_HUB_CONTRACT_ADDRESS,
+          rpcUrl: process.env.REACT_APP_WEB3_PROVIDER,
+          operatorUrl: process.env.REACT_APP_HUB_API_URL
+        });
+      
+        await nocust.addPrivateKey(privateKey);
+        //console.log("Private key added");
+      
+        try {
+          const withdrawLimit = nocust.getWithdrawalLimit(address, tokenAddress)
+          updateLimit(address, tokenAddress, withdrawLimit)
+         } catch (err) {
+          console.error(err)
           updateLimit(address, tokenAddress, null)
-        }
-        )
+         }
+      };
+      
+      checkWithdrawLimit();
     }
-  }, [address, tokenAddress, eraNumber])
+  }, [address, tokenAddress])
 
   return withdrawalLimit
 }
 
 export function useBlocksToWithdrawal (address, tokenAddress) {
-  const nocust = useNocustClient()
-  const eraNumber = useEraNumber()
+  //const nocust = useNocustClient()
+  useEffect(() => {
+    (async () => {
+      await createNocustManager(process.env.REACT_APP_WEB3_PROVIDER, process.env.REACT_APP_HUB_CONTRACT_ADDRESS, process.env.REACT_APP_HUB_API_URL)
+    })();
+    
+    return () => {
+      // this now gets called when the component unmounts
+    };
+  }, []);
+  //const eraNumber = useEraNumber()
   const [state, { updateBlocks }] = useWithdrawalContext()
   const { blocksToWithdrawal } = safeAccess(state, [address, tokenAddress]) || {}
 
@@ -137,22 +176,32 @@ export function useBlocksToWithdrawal (address, tokenAddress) {
           updateBlocks(address, tokenAddress, undefined)
         })
     }
-  }, [address, tokenAddress, eraNumber])
+  }, [address, tokenAddress])
 
   return blocksToWithdrawal
 }
 
-export function useAllBlocksToWithdrawal (address) {
-  const nocust = useNocustClient()
-  const eraNumber = useEraNumber()
-  const tokens = useTokens()
+export function useAllBlocksToWithdrawal (address, privateKey, txhash) {
+  //const nocust = useNocustClient()
+  useEffect(() => {
+    (async () => {
+      await createNocustManager(process.env.REACT_APP_WEB3_PROVIDER, process.env.REACT_APP_HUB_CONTRACT_ADDRESS, process.env.REACT_APP_HUB_API_URL, privateKey)
+    })();
+    
+    return () => {
+      // this now gets called when the component unmounts
+    };
+  }, []);
+
+  //const eraNumber = useEraNumber()
+  const tokens = useTokens(privateKey)
   const [state, { updateBlocks }] = useWithdrawalContext()
   const withdrawalObject = safeAccess(state, [address]) || {}
 
   useEffect(() => {
-    if (nocust && tokens && Object.keys(tokens).length > 0 && isAddress(address)) {
+    if (tokens && Object.keys(tokens).length > 0 && isAddress(address)) {
       Promise.all(Object.values(tokens).map(async ({ tokenAddress }) => {
-        return { tokenAddress: tokenAddress, blocksToWithdrawal: await nocust.getBlocksToWithdrawalConfirmation(address, undefined, tokenAddress) }
+        return { tokenAddress: tokenAddress, blocksToWithdrawal: await nocust.getBlocksToWithdrawalConfirmation(txhash) }
       }))
         .then(tokenList => {
           tokenList.forEach(({ tokenAddress, blocksToWithdrawal }) => {
@@ -165,7 +214,7 @@ export function useAllBlocksToWithdrawal (address) {
           console.log("I'm in a bother")
         })
     }
-  }, [address, eraNumber])
+  }, [address])
 
   return Object.entries(withdrawalObject).reduce((accumulator, [tokenAddress, { blocksToWithdrawal }]) => {
     accumulator[tokenAddress] = blocksToWithdrawal
@@ -173,8 +222,8 @@ export function useAllBlocksToWithdrawal (address) {
   }, {})
 }
 
-export function getNextAvailableConfirmation (address) {
-  const withdrawalObject = useAllBlocksToWithdrawal(address)
+export function getNextAvailableConfirmation (address, privateKey, txhash) {
+  const withdrawalObject = useAllBlocksToWithdrawal(address, privateKey, txhash)
 
   const [tokenAddress, blocksToWithdrawal] = Object.entries(withdrawalObject)
     .filter(([, blocksToWithdrawal]) => blocksToWithdrawal >= 0) // blocksToWithdrawal = -1 means no withdrawal in progress

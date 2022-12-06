@@ -18,7 +18,7 @@ import { useTokens } from '../contexts/Tokens'
 
 import {
   SendPage,
-  // ExchangePage,
+  ExchangePage,
   BridgePage,
   MainPage,
   RequestPage,
@@ -28,7 +28,7 @@ import {
 const LOADERIMAGE = lqdImg
 
 export default (props) => {
-  const tokens = useTokens()
+  const tokens = useTokens(props.privateKey)
 
   const backButton = (
     <Link to={props.match.url}>
@@ -93,6 +93,7 @@ export default (props) => {
               address={props.address}
               changeAlert={props.changeAlert}
               backButton={backButton}
+              privateKey={props.privateKey}
             />
           )
         }}
@@ -107,12 +108,13 @@ export default (props) => {
               gwei={props.gwei}
               changeAlert={props.changeAlert}
               backButton={backButton}
+              privateKey={props.privateKey}
             />
           )
         }}
       />
 
-      {/* <Route
+      { <Route
         path={`${props.match.url}/exchange/:assetA/:assetB`}
         render={({ history, match }) =>
           <ExchangePage
@@ -121,8 +123,9 @@ export default (props) => {
             tokens={tokens}
             address={props.address}
             backButton={backButton}
+            privateKey={props.privateKey}
           />}
-      /> */}
+      /> }
 
       <Route
         path={`${props.match.url}/request/:token`}
@@ -134,6 +137,7 @@ export default (props) => {
             match={match}
             changeAlert={props.changeAlert}
             backButton={backButton}
+            privateKey={props.privateKey}
           />}
       />
 
@@ -143,6 +147,7 @@ export default (props) => {
           <MainPage
             url={match.url}
             address={props.address}
+            privateKey={props.privateKey}
             tokens={tokens}
             gwei={props.gwei}
             changeAlert={props.changeAlert}

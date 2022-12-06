@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 import { Scaler } from 'dapparatus'
@@ -7,23 +7,38 @@ import i18next from 'i18next'
 import { getNextAvailableConfirmation } from '../contexts/Withdrawal'
 import { useNocustClient } from '../contexts/Nocust'
 import { useButtonStyle } from '../contexts/Theme'
+import { createNocustManager } from '../services/nocustManager'
+import { nocust } from 'nocust-client'
 
 const { toWei } = require('web3-utils')
 const humanizeDuration = require('humanize-duration')
 
-async function confirmWithdrawal (nocust, address, gwei, tokenAddress) {
+async function confirmWithdrawal (address, gwei, tokenAddress, privateKey) {
   const gasLimit = '300000'
 
-  const txhash = await nocust.withdrawalConfirmation(address, toWei(gwei.toString(10), 'gwei'), gasLimit, tokenAddress)
+  useEffect(() => {
+    (async () => {
+      await createNocustManager(process.env.REACT_APP_WEB3_PROVIDER, process.env.REACT_APP_HUB_CONTRACT_ADDRESS, process.env.REACT_APP_HUB_API_URL, privateKey)
+    })();
+    
+    return () => {
+      // this now gets called when the component unmounts
+    };
+  }, []);
+
+  const txhash = await nocust.confirmWithdrawal(address, toWei(gwei.toString(10), 'gwei'), tokenAddress)
   console.log('withdrawal', txhash)
+  return txhash
 }
 
 const BLOCK_TIME = 15 * 1000
 
 export default (props) => {
-  const nocust = useNocustClient()
+  //const nocust = useNocustClient()
+
   const buttonStyle = useButtonStyle()
-  const { tokenAddress, blocksToWithdrawal } = getNextAvailableConfirmation(props.address)
+/*   const txhash = confirmWithdrawal(props.address, props.gwei, tokenAddress, props.privateKey)
+  const { tokenAddress, blocksToWithdrawal } = getNextAvailableConfirmation(props.address, props.privateKey, txhash)
   // console.log('NEXT CONFIRMATION', tokenAddress, blocksToWithdrawal)
   const timeToWithdrawal = humanizeDuration(BLOCK_TIME * blocksToWithdrawal, { largest: 2, units: ['h', 'm', 's'] })
 
@@ -33,7 +48,7 @@ export default (props) => {
   if (withdrawalInProgess) {
     withdrawalButton = (
       <div className='content ops row'>
-        <div className='col-12 p-1' onClick={() => { if (blocksToWithdrawal === 0) confirmWithdrawal(nocust, props.address, props.gwei, tokenAddress) }}>
+        <div className='col-12 p-1' onClick={() => { if (blocksToWithdrawal === 0) confirmWithdrawal(props.address, props.gwei, tokenAddress, props.privateKey) }}>
           <button className={`btn btn-large w-100 ${blocksToWithdrawal === 0 ? '' : 'disabled'}`} style={buttonStyle.primary}>
             <Scaler config={{ startZoomAt: 500, origin: '0% 50%' }}>
               <i className={`fas ${blocksToWithdrawal === 0 ? 'fa-check' : 'fa-clock'}`} /> {blocksToWithdrawal === 0 ? i18next.t('confirm_withdraw') : blocksToWithdrawal + ' blocks (' + timeToWithdrawal + ') until confirmation'}
@@ -42,11 +57,11 @@ export default (props) => {
         </div>
       </div>
     )
-  }
+  } */
 
   return (
     <div>
-      {withdrawalButton}
+      {/* {withdrawalButton} */}
       <div className='content ops row'>
         <div className='col-12 p-1'>
           <button className='btn btn-large w-100' style={buttonStyle.primary}>

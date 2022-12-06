@@ -4,6 +4,8 @@ import { safeAccess } from '../utils'
 import { isAddress } from 'web3-utils'
 import { useNocustClient, useEraNumber } from './Nocust'
 
+import { nocust } from 'nocust-client'
+
 const UPDATE = 'UPDATE'
 
 const TransactionContext = createContext()
@@ -46,26 +48,28 @@ export default function Provider ({ children }) {
 }
 
 export function useTokenTransactions (address, tokenAddress) {
-  const nocust = useNocustClient()
-  const eraNumber = useEraNumber()
+  //const nocust = useNocustClient()
+  //const eraNumber = useEraNumber()
   const [state, { update }] = useTransactionContext()
   const transactions = safeAccess(state, [address, tokenAddress]) || []
 
   useEffect(() => {
     if (isAddress(address) && isAddress(tokenAddress)) {
       console.log('checking transactions')
-      nocust.getTransactionsForAddress(address, tokenAddress)
-        .then(transactions => {
-          if (transactions.length) {
-            transactions = transactions.reverse()
-          }
-          update(address, tokenAddress, transactions)
-        })
+      const getTokenTransacions = async () => {
+        const transactions = await nocust.getTransfers(address, tokenAddress)
+        if (transactions.length) {
+          transactions = transactions.reverse()
+        }
+        update(address, tokenAddress, transactions)
+      }
+
+      getTokenTransacions()
         .catch(() => {
           update(address, tokenAddress, [])
         })
     }
-  }, [address, tokenAddress, eraNumber])
+  }, [address, tokenAddress])
 
   return transactions
 }

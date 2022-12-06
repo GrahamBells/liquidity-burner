@@ -55,7 +55,8 @@ class KeyManager extends React.Component {
           config={{
             DEBUG: false,
             hide: true,
-            requiredNetwork: ['Unknown', 'Rinkeby'],
+            //requiredNetwork: ['Unknown', 'Rinkeby'],
+            requiredNetwork: ['Local', 'Goerli'],
             POLLINTERVAL: 5000 // responsible for slow load times
           }}
           // used to pass a private key into Dapparatus

@@ -13,7 +13,7 @@ const TransactionEntry = ({ tx, changeAlert, token }) => {
 
   const transactionAmount = (
     <span>
-      <span style={{ opacity: 0.33 }}>-</span>{fromWei(tx.amount.toString(10), 'ether')} f{token.shortName}<span style={{ opacity: 0.33 }}>-></span>
+      <span style={{ opacity: 0.33 }}>-</span>{fromWei(tx.amount.toString(10), 'ether')} f{token.shortName}<span style={{ opacity: 0.33 }}>{'->'}</span>
     </span>
   )
 
@@ -71,7 +71,7 @@ const TransactionEntry = ({ tx, changeAlert, token }) => {
 }
 
 export default ({ max, address, changeAlert, token }) => {
-  const transactions = useTokenTransactions(address, token.tokenAddress)
+  const transactions = useTokenTransactions(address, token.address)
 
   const txns = []
   let count = 0

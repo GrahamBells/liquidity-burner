@@ -1,9 +1,15 @@
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect } from 'react'
 
 import { NOCUSTManager } from 'nocust-client'
+import { nocust } from 'nocust-client'
 
 const HUB_CONTRACT_ADDRESS = process.env.REACT_APP_HUB_CONTRACT_ADDRESS
+const WEB3_PROVIDER = process.env.REACT_APP_WEB3_PROVIDER
 const HUB_API_URL = process.env.REACT_APP_HUB_API_URL
+
+//console.log('HUB_CONTRACT_ADDRESS', HUB_CONTRACT_ADDRESS)
+//console.log('WEB3_PROVIDER', WEB3_PROVIDER)
+//console.log('HUB_API_URL', HUB_API_URL)
 
 const INITIAL_HUB_INFO = {
   hubContract: HUB_CONTRACT_ADDRESS,
@@ -78,7 +84,7 @@ export default function Provider ({ web3, children }) {
 
   // Poll the hub to keep track of the Era number
   // Can then use it as a clock to avoid excessive requests to hub
-  useEffect(() => {
+/*   useEffect(() => {
     const test = () => {
       const { nocust } = state
       if (nocust) {
@@ -98,7 +104,7 @@ export default function Provider ({ web3, children }) {
     test()
     const intervalId = setInterval(test, 10000)
     return () => { clearInterval(intervalId) }
-  }, [state.nocust])
+  }, [state.nocust]) */
 
   return (
     <NocustContext.Provider value={useMemo(() => [state, { updateNocust, updateEra, updateIsRecovery, updateSlaDetail }], [state, updateNocust, updateEra, updateIsRecovery, updateSlaDetail])}>
@@ -130,6 +136,7 @@ export function getBlocksPerEon () {
   return blocksPerEon
 }
 
+//Old NOCUST
 export function useNocustClient () {
   const [state, { updateNocust }] = useNocustContext()
   const { web3, nocust } = state
@@ -142,11 +149,12 @@ export function useNocustClient () {
           operatorApiUrl: HUB_API_URL,
           contractAddress: HUB_CONTRACT_ADDRESS
         })
-
-        console.log('new nocust-client')
+      
         updateNocust(nocustManager)
+        console.log('new nocust-client')
       } catch (e) {
         updateNocust(null)
+        console.log('no nocust-client')
       }
     }
   })
@@ -154,17 +162,33 @@ export function useNocustClient () {
   return nocust
 }
 
-export function useIsRecovery () {
+export function useIsRecovery (privateKey) {
   const [state, { updateIsRecovery }] = useNocustContext()
-  const { nocust, isRecovery, eraNumber } = state
+  //const { nocust, isRecovery, eraNumber } = state
+  const { isRecovery, eraNumber } = state
 
   useEffect(() => {
-    if (nocust) {
-      nocust.isRecovery()
-        .then(isRecovery => updateIsRecovery(isRecovery))
-        .catch(() => updateIsRecovery(false))
-    }
-  }, [eraNumber])
+    const checkIsRecovery = async () => {
+
+      await nocust.init({
+        contractAddress: HUB_CONTRACT_ADDRESS,
+        rpcUrl: WEB3_PROVIDER,
+        operatorUrl: HUB_API_URL
+      });
+    
+      await nocust.addPrivateKey(privateKey);
+      //console.log("Private key added");
+    
+      const recoveryMode = await nocust.isRecoveryMode();
+      if (recoveryMode === false ) {
+        updateIsRecovery(false)
+      } else {
+        updateIsRecovery(true)
+      }
+    };
+    
+    checkIsRecovery();
+  }, [eraNumber]);
 
   return isRecovery
 }

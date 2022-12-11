@@ -193,8 +193,8 @@ const App = (props) => {
 
   useEffect(() => {
     detectContext(address, update)
-  }, [])
-
+  }, [])  
+  
   const [alert, setAlert] = useState()
 
   const changeAlert = (alert, hide = true) => {

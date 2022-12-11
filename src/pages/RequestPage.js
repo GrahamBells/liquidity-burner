@@ -9,9 +9,12 @@ import Balance from '../components/Balance'
 
 import { useTokens } from '../contexts/Tokens'
 
-export default ({ address, networkId, history, match, changeAlert, backButton }) => {
-  const tokens = useTokens()
+export default ({ address, networkId, history, match, changeAlert, backButton, privateKey }) => {
+  const tokens = useTokens(privateKey)
   const token = tokens[match.params.token]
+  console.log('tokens', tokens)
+  console.log('match.params', match.params.token)
+  console.log('token', token)
 
   return (
     <div>
@@ -22,6 +25,7 @@ export default ({ address, networkId, history, match, changeAlert, backButton })
           offchain
           selected
           address={address}
+          privateKey={privateKey}
         />
         <Ruler />
         <Request

@@ -82,7 +82,7 @@ export default class SwapBar extends React.Component {
           icon='fa-arrow-up'
           text={this.props.text}
           buttonStyle={this.props.buttonStyle}
-          maxValue={this.props.onchainBalance}
+          maxValue={this.props.OnChainBalance}
           successAction={(amount) => {
             this.props.deposit(toWei(amount, 'ether'))
             this.setState({ swapMode: false })

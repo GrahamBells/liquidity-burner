@@ -6,7 +6,7 @@ import NavCard from '../components/NavCard'
 import Exchange from '../components/Exchange'
 import { isValidToken } from '../contexts/Tokens'
 
-export default ({ history, match, address, tokens, buttonStyle, backButton }) => {
+export default ({ history, match, address, tokens, buttonStyle, backButton, privateKey }) => {
   // check if tokens are valid
   const assetA = match.params.assetA
   const assetB = match.params.assetB
@@ -27,6 +27,7 @@ export default ({ history, match, address, tokens, buttonStyle, backButton }) =>
           assetA={assetA}
           assetB={assetB}
           address={address}
+          privateKey={privateKey}
         />
       </div>
       {backButton}

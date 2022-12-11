@@ -19,14 +19,15 @@ import { useIsRecovery } from '../contexts/Nocust'
 const TOKEN = process.env.REACT_APP_TOKEN
 
 export default (props) => {
+
   const eth = safeAccess(props.tokens, ['ETH']) || {}
   const token = safeAccess(props.tokens, [TOKEN]) || {}
-  const ethBalance = useAddressBalance(props.address, safeAccess(eth, ['tokenAddress']))
-  const tokenBalance = useAddressBalance(props.address, safeAccess(token, ['tokenAddress']))
+  const ethBalance = useAddressBalance(props.address, safeAccess(eth, ['tokenAddress']), props.privateKey)
+  const tokenBalance = useAddressBalance(props.address, safeAccess(token, ['tokenAddress']), props.privateKey)
 
-  const isRecovery = useIsRecovery()
+  const isRecovery = useIsRecovery(props.privateKey)
   if (isRecovery) console.log('HUB IS IN RECOVERY!!!!!')
-  registerTokens(props.address)
+  registerTokens(props.address, props.privateKey)
   return (
     <div>
       <div className='send-to-address card w-100' style={{ zIndex: 1 }}>
@@ -41,6 +42,7 @@ export default (props) => {
                 offchain
                 selected
                 address={props.address}
+                privateKey={props.privateKey}
               />
             </Link>
             <Ruler />
@@ -48,6 +50,7 @@ export default (props) => {
               token={token}
               balance={tokenBalance}
               address={props.address}
+              privateKey={props.privateKey}
             />
             <Ruler />
             <Link to={{ pathname: `${props.url}/send`, search: '?token=ETH' }}>
@@ -57,6 +60,7 @@ export default (props) => {
                 offchain
                 selected
                 address={props.address}
+                privateKey={props.privateKey}
               />
             </Link>
             <Ruler />
@@ -64,6 +68,7 @@ export default (props) => {
               token={eth}
               balance={ethBalance}
               address={props.address}
+              privateKey={props.privateKey}
             />
             <Ruler />
 
@@ -74,6 +79,7 @@ export default (props) => {
               gwei={props.gwei}
               token={TOKEN}
               changeAlert={props.changeAlert}
+              privateKey={props.privateKey}
             />
 
           </div>

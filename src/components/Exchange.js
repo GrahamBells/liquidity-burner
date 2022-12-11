@@ -5,6 +5,8 @@ import Balance from './Balance'
 import AmountBar from './AmountBar'
 import i18n from '../i18n'
 import { useNocustClient } from '../contexts/Nocust'
+import { createNocustManager } from '../services/nocustManager'
+import { nocust } from 'nocust-client'
 
 import { useOrderbook } from '../contexts/Orderbook'
 import { useTokens } from '../contexts/Tokens'
@@ -112,10 +114,19 @@ const TEXSwapBar = (props) => {
   const [swapMode, setSwapMode] = useState(false)
   const buttonStyle = useButtonStyle()
 
-  const nocust = useNocustClient()
+  //const nocust = useNocustClient()
+  useEffect(() => {
+    (async () => {
+      await createNocustManager(process.env.REACT_APP_WEB3_PROVIDER, process.env.REACT_APP_HUB_CONTRACT_ADDRESS, process.env.REACT_APP_HUB_API_URL)
+    })();
+    
+    return () => {
+      // this now gets called when the component unmounts
+    };
+  }, []);
 
-  const assetABalance = useOffchainAddressBalance(props.address, props.assetA ? props.assetA.tokenAddress : undefined)
-  const assetBBalance = useOffchainAddressBalance(props.address, props.assetB ? props.assetB.tokenAddress : undefined)
+  const assetABalance = useOffchainAddressBalance(props.address, props.assetA ? props.assetA.tokenAddress : undefined, props.privateKey)
+  const assetBBalance = useOffchainAddressBalance(props.address, props.assetB ? props.assetB.tokenAddress : undefined, props.privateKey)
   const ordersAToB = useOrderbook(props.assetB ? props.assetB.tokenAddress : undefined, props.assetA ? props.assetA.tokenAddress : undefined)
   const ordersBToA = useOrderbook(props.assetA ? props.assetA.tokenAddress : undefined, props.assetB ? props.assetB.tokenAddress : undefined)
 
@@ -225,7 +236,7 @@ const TEXSwapBar = (props) => {
 }
 
 export default (props) => {
-  const tokens = useTokens()
+  const tokens = useTokens(props.privateKey)
 
   const assetA = tokens[props.assetA]
   const assetB = tokens[props.assetB]
@@ -237,18 +248,21 @@ export default (props) => {
         address={props.address}
         offchain
         selected
+        privateKey={props.privateKey}
       />
       <Ruler />
       <TEXSwapBar
         address={props.address}
         assetA={assetA}
         assetB={assetB}
+        privateKey={props.privateKey}
       />
       <Balance
         token={assetB}
         address={props.address}
         offchain
         selected
+        privateKey={props.privateKey}
       />
       <Ruler />
     </div>

@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect } from 'react'
 import { safeAccess } from '../utils'
-import { useNocustClient, useEraNumber } from './Nocust'
+import { useEraNumber } from './Nocust'
+import { createNocustManager } from '../services/nocustManager'
+import { nocust } from 'nocust-client'
 
 // import { safeAccess } from '../utils'
 
@@ -49,8 +51,18 @@ export default function Provider ({ web3, children }) {
 }
 
 export function useOrderbook (buyTokenAddress, sellTokenAddress) {
-  const nocust = useNocustClient()
-  const eraNumber = useEraNumber()
+  //const nocust = useNocustClient()
+  useEffect(() => {
+    (async () => {
+      await createNocustManager(process.env.REACT_APP_WEB3_PROVIDER, process.env.REACT_APP_HUB_CONTRACT_ADDRESS, process.env.REACT_APP_HUB_API_URL)
+    })();
+    
+    return () => {
+      // this now gets called when the component unmounts
+    };
+  }, []);
+
+  //const eraNumber = useEraNumber()
   const [state, { update }] = useOrderbookContext()
   const orders = safeAccess(state, [buyTokenAddress, sellTokenAddress]) || []
 
@@ -65,7 +77,7 @@ export function useOrderbook (buyTokenAddress, sellTokenAddress) {
           update(buyTokenAddress, sellTokenAddress, {})
         })
     }
-  }, [eraNumber, buyTokenAddress, sellTokenAddress, update])
+  }, [buyTokenAddress, sellTokenAddress, update])
 
   return orders
 }

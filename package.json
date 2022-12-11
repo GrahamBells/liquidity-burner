@@ -90,5 +90,18 @@
   },
   "standard": {
     "parser": "babel-eslint"
-  }
+  },
+  "description": "<p align=\"center\"> \r   <img src=\"src/images/liquidity.png\" alt=\"drawing\" width=\"200\"/>\r </p>",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spear-protocol/aegis-wallet.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/spear-protocol/aegis-wallet/issues"
+  },
+  "homepage": "https://github.com/spear-protocol/aegis-wallet#readme"
 }

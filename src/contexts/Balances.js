@@ -187,7 +187,10 @@ export function useAddressBalance (address, tokenAddress, privateKey) {
     console.log('getting balances for', tokenAddress)
     if (!!address && !!tokenAddress) {
       const getWalletBalance = async () => {
-
+        console.log('Im here')
+        console.log(process.env.REACT_APP_HUB_CONTRACT_ADDRESS)
+        console.log(process.env.REACT_APP_WEB3_PROVIDER)
+        console.log(process.env.REACT_APP_HUB_API_URL)
         await nocust.init({
           contractAddress: process.env.REACT_APP_HUB_CONTRACT_ADDRESS,
           rpcUrl: process.env.REACT_APP_WEB3_PROVIDER,
@@ -195,10 +198,15 @@ export function useAddressBalance (address, tokenAddress, privateKey) {
         });
       
         await nocust.addPrivateKey(privateKey);
-        //console.log("Private key added");
+        console.log("Private key added");
+
+        console.log('address', address)
+        console.log('tokenAddress', tokenAddress)
       
         const OnChainBalance = await nocust.getParentChainBalance(address, tokenAddress)
         const OffchainBalance = await nocust.getBalance(address, tokenAddress)
+        console.log('OnChainBalance', OnChainBalance)
+        console.log('OffchainBalance', OffchainBalance)
         const walletBalance = Promise.all([OnChainBalance, OffchainBalance])
         walletBalance.then(([OnChainBalance, OffchainBalance]) => {
           update(address, tokenAddress, { OnChainBalance, OffchainBalance })

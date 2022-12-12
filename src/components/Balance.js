@@ -13,8 +13,10 @@ export default ({ address, token, selected, offchain, privateKey }) => {
   }
   const tokenBalance = useAddressBalance(address, token ? token.tokenAddress : undefined, privateKey)
   //const balance = offchain ? tokenBalance.offchainBalance : tokenBalance.onChainBalance
-  const balance = offchain ? tokenBalance.OffchainBalance : tokenBalance.OnChainBalance
-  var amount = balance ? getDisplayValue(balance) : i18n.t('loading')
+  //const balance = offchain ? tokenBalance.OffchainBalance : tokenBalance.OnChainBalance
+  //console.log('balance', balance)
+  //var amount = balance ? getDisplayValue(balance) : i18n.t('loading')
+  var amount = 100
 
   if (isNaN(amount) || typeof amount === 'undefined') {
     amount = 0.00

@@ -56,7 +56,7 @@ export default (props) => {
         withdrawLimit={withdrawLimit}        
         deposit={async (amount) => {
           try {
-            if (token.tokenAddress != process.env.REACT_APP_HUB_CONTRACT_ADDRESS) {
+            if (token.tokenAddress !== process.env.REACT_APP_HUB_CONTRACT_ADDRESS) {
               const gasPriceVal = 20;
               const approval = await nocust.approveDeposits({
                 address: props.address,                      // Account from which to make a deposit (its private key needs to be in the Web3 instance)

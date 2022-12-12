@@ -22,8 +22,10 @@ export default (props) => {
 
   const eth = safeAccess(props.tokens, ['ETH']) || {}
   const token = safeAccess(props.tokens, [TOKEN]) || {}
-  const ethBalance = useAddressBalance(props.address, safeAccess(eth, ['tokenAddress']), props.privateKey)
-  const tokenBalance = useAddressBalance(props.address, safeAccess(token, ['tokenAddress']), props.privateKey)
+  //const ethBalance = useAddressBalance(props.address, safeAccess(eth, ['tokenAddress']), props.privateKey)
+  //const tokenBalance = useAddressBalance(props.address, safeAccess(token, ['tokenAddress']), props.privateKey)
+  const ethBalance = 100
+  const tokenBalance = 100
 
   const isRecovery = useIsRecovery(props.privateKey)
   if (isRecovery) console.log('HUB IS IN RECOVERY!!!!!')

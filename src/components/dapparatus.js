@@ -43,7 +43,7 @@ function translateNetwork (id) {
     42: 'Kovan',
     99: 'POA',
     100: 'xDai',
-    1337: 'Local',
+    1337: 'Tartarus',
     5777: 'Ganache'
   }
   return networks[id] || 'Unknown'

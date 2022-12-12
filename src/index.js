@@ -56,7 +56,7 @@ class KeyManager extends React.Component {
             DEBUG: false,
             hide: true,
             //requiredNetwork: ['Unknown', 'Rinkeby'],
-            requiredNetwork: ['Local', 'Goerli'],
+            requiredNetwork: ['Tartarus', 'Goerli'],
             POLLINTERVAL: 5000 // responsible for slow load times
           }}
           // used to pass a private key into Dapparatus
@@ -64,6 +64,7 @@ class KeyManager extends React.Component {
           fallbackWeb3Provider={WEB3_PROVIDER}
           onUpdate={async (state) => {
             console.log('Dapparatus update', state)
+            console.log('WEB3_PROVIDER', WEB3_PROVIDER)
 
             if (state.web3Provider) {
               state.web3 = new Web3(state.web3Provider)
